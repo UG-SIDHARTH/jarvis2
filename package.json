@@ -1,0 +1,33 @@
+{
+  "name": "jarvis2",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "node --experimental-strip-types src/index.ts",
+    "start:cli": "node --experimental-strip-types src/index.ts --cli",
+    "start:web": "node --experimental-strip-types src/index.ts --web",
+    "start:telegram": "node --experimental-strip-types src/index.ts --telegram",
+    "start:discord": "node --experimental-strip-types src/index.ts --discord",
+    "start:all": "node --experimental-strip-types src/index.ts --all"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UG-SIDHARTH/jarvis2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/UG-SIDHARTH/jarvis2/issues"
+  },
+  "homepage": "https://github.com/UG-SIDHARTH/jarvis2#readme",
+  "dependencies": {
+    "@google/genai": "^2.23.0",
+    "chalk": "^6.0.0",
+    "discord.js": "^14.27.0",
+    "dotenv": "^18.0.1",
+    "grammy": "^1.46.0"
+  }
+}

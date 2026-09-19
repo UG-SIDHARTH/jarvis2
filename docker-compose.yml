@@ -1,0 +1,15 @@
+services:
+  jarvis:
+    build: .
+    container_name: jarvis-orchestrator
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - jarvis_data:/app/data
+    environment:
+      - DATA_PATH=/app/data/jarvis_store.json
+
+volumes:
+  jarvis_data:
+    driver: local

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JARVIS — Autonomous AI Orchestrator</title>
+  <meta name="description" content="JARVIS Personal AI Orchestrator dashboard for task automation, coding, discord server management, and website auditing.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background-glow"></div>
+
+  <header class="top-nav">
+    <div class="brand-section">
+      <div class="core-reactor">
+        <div class="core-inner"></div>
+      </div>
+      <div>
+        <h1 class="brand-title">J.A.R.V.I.S. <span class="version-tag">v2.5</span></h1>
+        <p class="brand-subtitle">Autonomous Personal AI Orchestrator</p>
+      </div>
+    </div>
+
+    <div class="system-status-bar">
+      <div class="audio-wave hidden" id="audio-wave" title="JARVIS Vocal Synthesizer Active">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+
+      <button id="voice-toggle-btn" class="nav-action-btn" title="Toggle JARVIS Speech Synthesis">
+        <span id="voice-icon">🔊</span> <span id="voice-status-text">Voice ON</span>
+      </button>
+
+      <button id="open-settings-btn" class="nav-action-btn settings-btn" title="Configure API Keys & Bots">
+        ⚙️ <span class="nav-btn-label">API Keys & Bots</span>
+      </button>
+
+      <div class="status-node online">
+        <span class="pulse-dot"></span>
+        <span class="status-label" id="active-provider-label">GROQ/GEMINI</span>
+      </div>
+      <div class="platform-chips">
+        <span class="chip active" id="chip-web">WEB</span>
+        <span class="chip" id="chip-discord">DISCORD</span>
+        <span class="chip" id="chip-telegram">TELEGRAM</span>
+        <span class="chip active" id="chip-cli">CLI</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- HOLOGRAPHIC RADAR & NEURAL HUD DISPLAY -->
+  <section class="hud-container-card" id="hud-section" aria-label="Holographic HUD & Radar">
+    <div class="hud-header-bar">
+      <div class="hud-title-group">
+        <span class="hud-live-tag">● LIVE HOLOGRAPHIC TELEMETRY</span>
+        <h3>RADAR & INFRARED DISPLAY // TACTICAL INTERFACE</h3>
+      </div>
+      <div class="hud-controls">
+        <span class="hud-status-badge" id="hud-vocal-status">AUDIO STANDBY</span>
+        <button class="btn-hud-mode" id="toggle-hud-btn" title="Toggle HUD Display Height">⛶ Resize HUD</button>
+      </div>
+    </div>
+    <div class="hud-canvas-wrapper" id="hud-canvas-wrapper">
+      <canvas id="jarvis-hud-canvas"></canvas>
+    </div>
+  </section>
+
+  <main class="dashboard-grid">
+    <!-- COLUMN 1: AI COMMAND CONSOLE -->
+    <section class="card console-card" aria-label="AI Command Console">
+      <div class="card-header">
+        <div class="card-title-group">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <h2>Neural Command Stream</h2>
+        </div>
+        <span class="subtext">Gemini 2.5 Active</span>
+      </div>
+
+      <div class="chat-viewport" id="chat-viewport">
+        <div class="message system-message">
+          <div class="message-meta">SYSTEM // INITIALIZED</div>
+          <div class="message-body">JARVIS calibrated and standing by. Multi-channel memory synchronized. State your directive or select a tactical shortcut below.</div>
+        </div>
+      </div>
+
+      <div class="quick-prompts">
+        <button class="prompt-chip" data-prompt="Audit website https://google.com">Audit Google</button>
+        <button class="prompt-chip" data-prompt="Setup developer Discord server layout with rules">Setup Dev Discord</button>
+        <button class="prompt-chip" data-prompt="List all urgent and high priority tasks">Check High Tasks</button>
+        <button class="prompt-chip" data-prompt="Schedule daily standup briefing for tomorrow at 10 AM">Set Standup</button>
+      </div>
+
+      <form id="chat-form" class="chat-input-bar">
+        <input type="text" id="chat-input" placeholder="Transmit instruction to JARVIS..." autocomplete="off" required>
+        <button type="submit" id="chat-submit-btn" aria-label="Send message">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- COLUMN 2: TACTICAL TASK MATRIX -->
+    <section class="card tasks-card" aria-label="Tactical Task Matrix">
+      <div class="card-header">
+        <div class="card-title-group">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+          <h2>Task Registry</h2>
+        </div>
+        <span class="badge" id="task-count-badge">0 Active</span>
+      </div>
+
+      <form id="new-task-form" class="task-input-bar">
+        <input type="text" id="task-title-input" placeholder="New directive or to-do..." required>
+        <select id="task-priority-select" aria-label="Task Priority">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+          <option value="urgent">Urgent</option>
+        </select>
+        <button type="submit" class="btn-primary" id="add-task-btn">+ Add</button>
+      </form>
+
+      <div class="task-filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="pending">Pending</button>
+        <button class="filter-btn" data-filter="completed">Done</button>
+      </div>
+
+      <div class="task-list" id="task-list">
+        <!-- Dynamically rendered -->
+        <div class="empty-state">Loading tasks...</div>
+      </div>
+    </section>
+
+    <!-- COLUMN 3: OPERATIONS & DIAGNOSTICS -->
+    <section class="card ops-card" aria-label="Operations and Diagnostics">
+      <!-- SUBSECTION: WEBSITE AUDITOR -->
+      <div class="ops-section">
+        <div class="card-header">
+          <div class="card-title-group">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            <h2>Website Auditor</h2>
+          </div>
+          <span class="subtext">Live Latency & Health</span>
+        </div>
+
+        <form id="website-test-form" class="webtest-input-bar">
+          <input type="text" id="website-url-input" placeholder="https://example.com" required>
+          <button type="submit" class="btn-accent" id="test-website-btn">Audit</button>
+        </form>
+
+        <div id="website-test-result" class="audit-result-box hidden">
+          <div class="audit-status-row">
+            <span class="audit-badge" id="audit-status-badge">HTTP 200</span>
+            <span class="audit-metric" id="audit-latency-metric">0 ms</span>
+            <span class="audit-badge ssl" id="audit-ssl-badge">SSL Secure</span>
+          </div>
+          <div class="audit-details">
+            <p><strong>Title:</strong> <span id="audit-title">N/A</span></p>
+            <p><strong>Description:</strong> <span id="audit-desc">N/A</span></p>
+            <p><strong>Content-Type:</strong> <span id="audit-content-type">N/A</span></p>
+          </div>
+        </div>
+      </div>
+
+      <hr class="card-divider">
+
+      <!-- SUBSECTION: DISCORD SERVER CONTROLLER -->
+      <div class="ops-section">
+        <div class="card-header">
+          <div class="card-title-group">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+            <h2>Discord Automation</h2>
+          </div>
+          <span class="subtext">Server Scaffolding</span>
+        </div>
+
+        <div class="discord-controls">
+          <div class="bot-status-indicators">
+            <div class="bot-status-card">
+              <span class="bot-status-icon">🤖</span>
+              <div>
+                <div class="bot-name">Discord Bot</div>
+                <div class="bot-state" id="discord-bot-state">Checking...</div>
+              </div>
+            </div>
+            <div class="bot-status-card">
+              <span class="bot-status-icon">✈️</span>
+              <div>
+                <div class="bot-name">Telegram Bot</div>
+                <div class="bot-state" id="telegram-bot-state">Checking...</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="control-row">
+            <label for="template-select">Preset Architecture:</label>
+            <select id="template-select">
+              <option value="developer">Developer Hub (Rules, Dev, VC)</option>
+              <option value="community">Community Lounge (Chat, Media)</option>
+              <option value="gaming">Gaming Arena (Lobbies, Teams)</option>
+            </select>
+          </div>
+          <button class="btn-discord" id="deploy-template-btn">Deploy Template to Server</button>
+          <div id="discord-feedback" class="feedback-text"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- SETTINGS MODAL: API KEYS & BOT CONFIGURATION -->
+  <div class="modal-backdrop hidden" id="settings-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="card-title-group">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <h2>System Configuration & API Keys</h2>
+        </div>
+        <button class="close-modal-btn" id="close-settings-btn">&times;</button>
+      </div>
+
+      <form id="settings-form" class="modal-body">
+        <div class="settings-section">
+          <h3>Neural LLM Providers</h3>
+          
+          <div class="form-group">
+            <div class="label-row">
+              <label for="groq-api-key">Groq API Key (Ultra-Fast LLaMA 3.3 / Mixtral):</label>
+              <span class="provider-badge groq">Recommended for Voice</span>
+            </div>
+            <input type="password" id="groq-api-key" placeholder="gsk_..." autocomplete="off">
+            <span class="field-hint" id="groq-hint">Not configured</span>
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="gemini-api-key">Google Gemini API Key:</label>
+              <span class="provider-badge gemini">Gemini 2.5 Flash</span>
+            </div>
+            <input type="password" id="gemini-api-key" placeholder="AIzaSy..." autocomplete="off">
+            <span class="field-hint" id="gemini-hint">Not configured</span>
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="nvidia-api-key">NVIDIA NIM API Key:</label>
+              <span class="provider-badge nvidia">NVIDIA LLaMA 3.1</span>
+            </div>
+            <input type="password" id="nvidia-api-key" placeholder="nvapi-..." autocomplete="off">
+            <span class="field-hint" id="nvidia-hint">Not configured</span>
+          </div>
+
+          <div class="form-group">
+            <label for="active-provider-select">Active Neural Provider:</label>
+            <select id="active-provider-select">
+              <option value="auto">Auto (Prefers Groq if available, then Gemini, then NVIDIA)</option>
+              <option value="groq">Groq (LLaMA 3.3 70B - Blazing Speed)</option>
+              <option value="gemini">Google Gemini (Gemini 2.5 Flash)</option>
+              <option value="nvidia">NVIDIA NIM (meta/llama-3.1-70b)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Platform Connectors</h3>
+
+          <div class="form-group">
+            <label for="discord-token">Discord Bot Token:</label>
+            <input type="password" id="discord-token" placeholder="Bot token from Discord Developer Portal" autocomplete="off">
+            <span class="field-hint" id="discord-hint">Not configured</span>
+          </div>
+
+          <div class="form-group">
+            <label for="telegram-token">Telegram Bot Token:</label>
+            <input type="password" id="telegram-token" placeholder="Token from @BotFather" autocomplete="off">
+            <span class="field-hint" id="telegram-hint">Not configured</span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn-primary" id="save-settings-btn">Save & Apply Configuration</button>
+          <span id="save-feedback" class="feedback-text"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
