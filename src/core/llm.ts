@@ -11,7 +11,18 @@ export interface GenerateResult {
   toolCallsExecuted: Array<{ name: string; args: any; result: any }>;
 }
 
+const GROQ_CANDIDATE_MODELS = [
+  'llama-3.1-8b-instant',
+  'llama-3.3-70b-versatile',
+  'llama-3.1-70b-versatile',
+  'llama3-70b-8192',
+  'llama3-8b-8192',
+  'mixtral-8x7b-32768',
+];
+
 export class JarvisLLM {
+  private cachedGroqModel: string | null = null;
+
   private getEffectiveProvider(): 'groq' | 'gemini' | 'nvidia' | 'offline' {
     if (settings.activeProvider === 'groq' && settings.groqApiKey) return 'groq';
     if (settings.activeProvider === 'gemini' && settings.geminiApiKey) return 'gemini';
@@ -39,9 +50,9 @@ export class JarvisLLM {
     context: ToolContext,
     mood: JarvisMood = 'calm'
   ): Promise<GenerateResult> {
-    const provider = this.getEffectiveProvider();
+    const primaryProvider = this.getEffectiveProvider();
 
-    if (provider === 'offline') {
+    if (primaryProvider === 'offline') {
       return {
         text: "Neural processing offline. Please configure your Groq, Gemini, or NVIDIA API key in settings.",
         provider: 'offline',
@@ -50,34 +61,92 @@ export class JarvisLLM {
       };
     }
 
-    if (provider === 'groq') {
-      return await this.processWithOpenAICompatible({
-        baseUrl: 'https://api.groq.com/openai/v1',
-        apiKey: settings.groqApiKey,
-        model: 'llama-3.3-70b-versatile',
-        providerName: 'groq',
-        userPrompt,
-        history,
-        context,
-        mood,
-      });
+    // Attempt primary provider with fallback to alternatives
+    const providersToTry: Array<'groq' | 'gemini' | 'nvidia'> = [];
+    if (primaryProvider !== 'offline') providersToTry.push(primaryProvider);
+    if (settings.groqApiKey && !providersToTry.includes('groq')) providersToTry.push('groq');
+    if (settings.geminiApiKey && !providersToTry.includes('gemini')) providersToTry.push('gemini');
+    if (settings.nvidiaApiKey && !providersToTry.includes('nvidia')) providersToTry.push('nvidia');
+
+    let lastError: any = null;
+
+    for (const provider of providersToTry) {
+      try {
+        if (provider === 'groq') {
+          const initialModel = settings.groqModel || this.cachedGroqModel || 'llama-3.1-8b-instant';
+          return await this.processWithGroqAutoFallback(initialModel, userPrompt, history, context, mood);
+        }
+
+        if (provider === 'gemini') {
+          return await this.processWithGemini(userPrompt, history, context, mood);
+        }
+
+        if (provider === 'nvidia') {
+          return await this.processWithOpenAICompatible({
+            baseUrl: 'https://integrate.api.nvidia.com/v1',
+            apiKey: settings.nvidiaApiKey,
+            model: 'meta/llama-3.1-70b-instruct',
+            providerName: 'nvidia',
+            userPrompt,
+            history,
+            context,
+            mood,
+          });
+        }
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`[LLM] Provider "${provider}" failed: ${err.message}. Trying next available provider...`);
+      }
     }
 
-    if (provider === 'nvidia') {
-      return await this.processWithOpenAICompatible({
-        baseUrl: 'https://integrate.api.nvidia.com/v1',
-        apiKey: settings.nvidiaApiKey,
-        model: 'meta/llama-3.1-70b-instruct',
-        providerName: 'nvidia',
-        userPrompt,
-        history,
-        context,
-        mood,
-      });
+    throw lastError || new Error("All configured neural providers failed to respond.");
+  }
+
+  // --- GROQ AUTO-FALLBACK HANDLER ---
+  private async processWithGroqAutoFallback(
+    initialModel: string,
+    userPrompt: string,
+    history: Array<{ role: 'user' | 'assistant'; content: string }>,
+    context: ToolContext,
+    mood: JarvisMood
+  ): Promise<GenerateResult> {
+    const modelsToTry = [
+      initialModel,
+      ...GROQ_CANDIDATE_MODELS.filter((m) => m !== initialModel),
+    ];
+
+    let lastError: any = null;
+
+    for (const model of modelsToTry) {
+      try {
+        const res = await this.processWithOpenAICompatible({
+          baseUrl: 'https://api.groq.com/openai/v1',
+          apiKey: settings.groqApiKey,
+          model,
+          providerName: 'groq',
+          userPrompt,
+          history,
+          context,
+          mood,
+        });
+
+        // Cache working model for ultra-low latency on subsequent turns
+        this.cachedGroqModel = model;
+        return res;
+      } catch (err: any) {
+        lastError = err;
+        const msg = err.message || '';
+        // If 404 / model not found, try next candidate model
+        if (msg.includes('404') || msg.includes('model_not_found') || msg.includes('does not exist')) {
+          console.warn(`[Groq] Model "${model}" not available for this key. Attempting candidate fallback...`);
+          continue;
+        }
+        // If rate limit or other error, propagate to provider failover
+        throw err;
+      }
     }
 
-    // Default: Gemini
-    return await this.processWithGemini(userPrompt, history, context, mood);
+    throw lastError || new Error("No Groq models available for your account.");
   }
 
   // --- GEMINI HANDLER ---

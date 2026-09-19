@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingsModal = document.getElementById('settings-modal');
   const settingsForm = document.getElementById('settings-form');
   const groqApiKeyInput = document.getElementById('groq-api-key');
+  const groqModelSelect = document.getElementById('groq-model-select');
   const geminiApiKeyInput = document.getElementById('gemini-api-key');
   const nvidiaApiKeyInput = document.getElementById('nvidia-api-key');
   const activeProviderSelect = document.getElementById('active-provider-select');
@@ -185,6 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         activeProviderSelect.value = data.activeProvider || 'auto';
         activeProviderLabel.textContent = (data.activeProvider || 'AUTO').toUpperCase();
+        if (groqModelSelect && data.groqModel) {
+          groqModelSelect.value = data.groqModel;
+        }
       }
     } catch (err) {
       console.error('Failed to load settings:', err);
@@ -251,6 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     if (groqApiKeyInput.value.trim()) payload.groqApiKey = groqApiKeyInput.value.trim();
+    if (groqModelSelect && groqModelSelect.value) payload.groqModel = groqModelSelect.value;
     if (geminiApiKeyInput.value.trim()) payload.geminiApiKey = geminiApiKeyInput.value.trim();
     if (nvidiaApiKeyInput.value.trim()) payload.nvidiaApiKey = nvidiaApiKeyInput.value.trim();
     if (discordTokenInput.value.trim()) payload.discordBotToken = discordTokenInput.value.trim();

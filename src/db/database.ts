@@ -62,7 +62,13 @@ export class SqliteDatabase {
 
     this.db = new DatabaseSync(this.dbPath);
 
-    // Run schema
+    // Optimize SQLite for HDD and low-memory environments (Intel Pentium + HDD)
+    this.db.exec(`
+      PRAGMA journal_mode = WAL;
+      PRAGMA synchronous = NORMAL;
+      PRAGMA temp_store = MEMORY;
+      PRAGMA cache_size = -8000;
+    `);
     const schemaSql = `
       CREATE TABLE IF NOT EXISTS tasks (
           id TEXT PRIMARY KEY,

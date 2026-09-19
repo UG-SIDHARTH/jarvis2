@@ -10,6 +10,7 @@ export interface Settings {
   groqApiKey: string;
   nvidiaApiKey: string;
   activeProvider: 'groq' | 'gemini' | 'nvidia' | 'auto';
+  groqModel?: string;
   telegramBotToken?: string;
   discordBotToken?: string;
   discordClientId?: string;
@@ -24,6 +25,7 @@ export const settings: Settings = {
   groqApiKey: process.env.GROQ_API_KEY || '',
   nvidiaApiKey: process.env.NVIDIA_API_KEY || '',
   activeProvider: (process.env.ACTIVE_PROVIDER as Settings['activeProvider']) || 'auto',
+  groqModel: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN || '',
   discordBotToken: process.env.DISCORD_BOT_TOKEN || '',
   discordClientId: process.env.DISCORD_CLIENT_ID || '',
@@ -48,6 +50,7 @@ export async function saveSettingsToEnv(newSettings: Partial<Settings>): Promise
   const updates: Record<string, string> = {
     GEMINI_API_KEY: settings.geminiApiKey,
     GROQ_API_KEY: settings.groqApiKey,
+    GROQ_MODEL: settings.groqModel || 'llama-3.1-8b-instant',
     NVIDIA_API_KEY: settings.nvidiaApiKey,
     ACTIVE_PROVIDER: settings.activeProvider,
     TELEGRAM_BOT_TOKEN: settings.telegramBotToken || '',

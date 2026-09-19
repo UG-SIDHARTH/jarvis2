@@ -4,9 +4,6 @@ FROM node:22-alpine
 # Set working directory
 WORKDIR /app
 
-# Install build dependencies if needed for native modules
-RUN apk add --no-cache python3 make g++
-
 # Copy package manifests
 COPY package*.json ./
 
@@ -34,5 +31,5 @@ EXPOSE 3001
 # Expose volume for persistent memory
 VOLUME ["/app/data"]
 
-# Default command: launch all configured gateways (Telegram, Discord, CLI)
-CMD ["node", "--experimental-strip-types", "src/index.ts", "--all"]
+# Default command: launch all configured gateways with optimized 512MB RAM heap limit
+CMD ["node", "--experimental-strip-types", "--max-old-space-size=512", "src/index.ts", "--all"]

@@ -167,6 +167,7 @@ export async function runWebServer(orchestrator: JarvisOrchestrator, port = 3001
         sendJson(200, {
           success: true,
           activeProvider: settings.activeProvider,
+          groqModel: settings.groqModel || 'llama-3.1-8b-instant',
           hasGroq: Boolean(settings.groqApiKey),
           hasGemini: Boolean(settings.geminiApiKey),
           hasNvidia: Boolean(settings.nvidiaApiKey),
@@ -185,6 +186,7 @@ export async function runWebServer(orchestrator: JarvisOrchestrator, port = 3001
         const body = await parseBody();
         const updates: any = {};
         if (body.groqApiKey !== undefined && body.groqApiKey !== '') updates.groqApiKey = body.groqApiKey;
+        if (body.groqModel !== undefined && body.groqModel !== '') updates.groqModel = body.groqModel;
         if (body.geminiApiKey !== undefined && body.geminiApiKey !== '') updates.geminiApiKey = body.geminiApiKey;
         if (body.nvidiaApiKey !== undefined && body.nvidiaApiKey !== '') updates.nvidiaApiKey = body.nvidiaApiKey;
         if (body.activeProvider !== undefined) updates.activeProvider = body.activeProvider;
