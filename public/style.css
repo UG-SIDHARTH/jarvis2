@@ -1119,6 +1119,81 @@ body {
   font-family: var(--font-mono);
 }
 
+.field-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.btn-test-conn {
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-test-conn:hover {
+  background: rgba(0, 240, 255, 0.2);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
+}
+
+.btn-test-conn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.test-feedback {
+  font-size: 0.76rem;
+  font-family: var(--font-mono);
+  margin-top: 4px;
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+
+.test-feedback.active {
+  display: block;
+}
+
+.test-feedback.success {
+  color: var(--accent-emerald);
+}
+
+.test-feedback.error {
+  color: var(--accent-crimson);
+}
+
+.test-feedback.testing {
+  color: var(--accent-amber);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
 .modal-footer {
   display: flex;
   align-items: center;

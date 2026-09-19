@@ -289,6 +289,76 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // --- Test Connections Operations ---
+  async function testProvider(provider) {
+    const feedbackEl = document.getElementById(`${provider}-test-feedback`);
+    const btn = document.querySelector(`.btn-test-conn[data-provider="${provider}"]`);
+    if (!feedbackEl) return;
+
+    feedbackEl.className = 'test-feedback active testing';
+    feedbackEl.textContent = `Pinging ${provider.toUpperCase()}...`;
+    if (btn) btn.disabled = true;
+
+    let apiKey = '';
+    let model = '';
+
+    if (provider === 'groq') {
+      apiKey = groqApiKeyInput.value.trim();
+      model = groqModelSelect ? groqModelSelect.value : '';
+    } else if (provider === 'gemini') {
+      apiKey = geminiApiKeyInput.value.trim();
+    } else if (provider === 'nvidia') {
+      apiKey = nvidiaApiKeyInput.value.trim();
+    } else if (provider === 'discord') {
+      apiKey = discordTokenInput.value.trim();
+    } else if (provider === 'telegram') {
+      apiKey = telegramTokenInput.value.trim();
+    }
+
+    try {
+      const res = await fetch('/api/config/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider, apiKey, model }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        feedbackEl.className = 'test-feedback active success';
+        feedbackEl.textContent = `✔ ${data.message}`;
+      } else {
+        feedbackEl.className = 'test-feedback active error';
+        feedbackEl.textContent = `✖ ${data.error}`;
+      }
+    } catch (err) {
+      feedbackEl.className = 'test-feedback active error';
+      feedbackEl.textContent = `✖ Connection failed: ${err.message}`;
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  const testConnBtns = document.querySelectorAll('.btn-test-conn');
+  testConnBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const provider = btn.dataset.provider;
+      if (provider) testProvider(provider);
+    });
+  });
+
+  const testAllBtn = document.getElementById('test-all-btn');
+  if (testAllBtn) {
+    testAllBtn.addEventListener('click', async () => {
+      testAllBtn.disabled = true;
+      testAllBtn.textContent = '⚡ Testing All...';
+      for (const p of ['groq', 'gemini', 'nvidia', 'discord', 'telegram']) {
+        await testProvider(p);
+      }
+      testAllBtn.disabled = false;
+      testAllBtn.textContent = '⚡ Test All Connections';
+    });
+  }
+
   // --- Task Operations ---
   async function loadTasks() {
     try {

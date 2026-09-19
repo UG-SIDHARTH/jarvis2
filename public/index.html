@@ -242,7 +242,11 @@
               <span class="provider-badge groq">Recommended for Voice</span>
             </div>
             <input type="password" id="groq-api-key" placeholder="gsk_..." autocomplete="off">
-            <span class="field-hint" id="groq-hint">Not configured</span>
+            <div class="field-footer">
+              <span class="field-hint" id="groq-hint">Not configured</span>
+              <button type="button" class="btn-test-conn" data-provider="groq">⚡ Test Groq</button>
+            </div>
+            <div class="test-feedback" id="groq-test-feedback"></div>
           </div>
 
           <div class="form-group">
@@ -263,7 +267,11 @@
               <span class="provider-badge gemini">Gemini 2.5 Flash</span>
             </div>
             <input type="password" id="gemini-api-key" placeholder="AIzaSy..." autocomplete="off">
-            <span class="field-hint" id="gemini-hint">Not configured</span>
+            <div class="field-footer">
+              <span class="field-hint" id="gemini-hint">Not configured</span>
+              <button type="button" class="btn-test-conn" data-provider="gemini">⚡ Test Gemini</button>
+            </div>
+            <div class="test-feedback" id="gemini-test-feedback"></div>
           </div>
 
           <div class="form-group">
@@ -272,14 +280,18 @@
               <span class="provider-badge nvidia">NVIDIA LLaMA 3.1</span>
             </div>
             <input type="password" id="nvidia-api-key" placeholder="nvapi-..." autocomplete="off">
-            <span class="field-hint" id="nvidia-hint">Not configured</span>
+            <div class="field-footer">
+              <span class="field-hint" id="nvidia-hint">Not configured</span>
+              <button type="button" class="btn-test-conn" data-provider="nvidia">⚡ Test NVIDIA</button>
+            </div>
+            <div class="test-feedback" id="nvidia-test-feedback"></div>
           </div>
 
           <div class="form-group">
             <label for="active-provider-select">Active Neural Provider:</label>
             <select id="active-provider-select">
               <option value="auto">Auto (Prefers Groq if available, then Gemini, then NVIDIA)</option>
-              <option value="groq">Groq (LLaMA 3.3 70B - Blazing Speed)</option>
+              <option value="groq">Groq (LLaMA 3.1 8B - Blazing Speed)</option>
               <option value="gemini">Google Gemini (Gemini 2.5 Flash)</option>
               <option value="nvidia">NVIDIA NIM (meta/llama-3.1-70b)</option>
             </select>
@@ -292,17 +304,26 @@
           <div class="form-group">
             <label for="discord-token">Discord Bot Token:</label>
             <input type="password" id="discord-token" placeholder="Bot token from Discord Developer Portal" autocomplete="off">
-            <span class="field-hint" id="discord-hint">Not configured</span>
+            <div class="field-footer">
+              <span class="field-hint" id="discord-hint">Not configured</span>
+              <button type="button" class="btn-test-conn" data-provider="discord">⚡ Test Discord</button>
+            </div>
+            <div class="test-feedback" id="discord-test-feedback"></div>
           </div>
 
           <div class="form-group">
             <label for="telegram-token">Telegram Bot Token:</label>
             <input type="password" id="telegram-token" placeholder="Token from @BotFather" autocomplete="off">
-            <span class="field-hint" id="telegram-hint">Not configured</span>
+            <div class="field-footer">
+              <span class="field-hint" id="telegram-hint">Not configured</span>
+              <button type="button" class="btn-test-conn" data-provider="telegram">⚡ Test Telegram</button>
+            </div>
+            <div class="test-feedback" id="telegram-test-feedback"></div>
           </div>
         </div>
 
         <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="test-all-btn">⚡ Test All Connections</button>
           <button type="submit" class="btn-primary" id="save-settings-btn">Save & Apply Configuration</button>
           <span id="save-feedback" class="feedback-text"></span>
         </div>

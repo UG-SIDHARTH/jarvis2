@@ -198,6 +198,127 @@ export async function runWebServer(orchestrator: JarvisOrchestrator, port = 3001
         return;
       }
 
+      if (pathname === '/api/config/test' && req.method === 'POST') {
+        const body = await parseBody();
+        const provider = body.provider;
+
+        try {
+          if (provider === 'groq') {
+            const key = body.apiKey || settings.groqApiKey;
+            const model = body.model || settings.groqModel || 'llama-3.1-8b-instant';
+            if (!key) throw new Error('No Groq API key configured or provided.');
+            const startTime = Date.now();
+            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${key}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model,
+                messages: [{ role: 'user', content: 'Ping' }],
+                max_tokens: 5,
+              }),
+            });
+            const latency = Date.now() - startTime;
+            if (!res.ok) {
+              const errData = await res.json().catch(() => ({}));
+              throw new Error(errData?.error?.message || `HTTP ${res.status}`);
+            }
+            sendJson(200, { success: true, message: `Connected to Groq (${model})`, latency });
+            return;
+          }
+
+          if (provider === 'gemini') {
+            const key = body.apiKey || settings.geminiApiKey;
+            if (!key) throw new Error('No Gemini API key configured or provided.');
+            const startTime = Date.now();
+            const res = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contents: [{ role: 'user', parts: [{ text: 'Ping' }] }],
+                }),
+              }
+            );
+            const latency = Date.now() - startTime;
+            if (!res.ok) {
+              const errData = await res.json().catch(() => ({}));
+              throw new Error(errData?.error?.message || `HTTP ${res.status}`);
+            }
+            sendJson(200, { success: true, message: 'Connected to Gemini 2.5 Flash', latency });
+            return;
+          }
+
+          if (provider === 'nvidia') {
+            const key = body.apiKey || settings.nvidiaApiKey;
+            if (!key) throw new Error('No NVIDIA NIM API key configured or provided.');
+            const startTime = Date.now();
+            const res = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${key}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: 'meta/llama-3.1-70b-instruct',
+                messages: [{ role: 'user', content: 'Ping' }],
+                max_tokens: 5,
+              }),
+            });
+            const latency = Date.now() - startTime;
+            if (!res.ok) {
+              const errData = await res.json().catch(() => ({}));
+              throw new Error(errData?.error?.message || `HTTP ${res.status}`);
+            }
+            sendJson(200, { success: true, message: 'Connected to NVIDIA NIM', latency });
+            return;
+          }
+
+          if (provider === 'discord') {
+            const token = body.apiKey || settings.discordBotToken;
+            if (!token) throw new Error('No Discord bot token configured or provided.');
+            const startTime = Date.now();
+            const res = await fetch('https://discord.com/api/v10/users/@me', {
+              headers: { 'Authorization': `Bot ${token}` },
+            });
+            const latency = Date.now() - startTime;
+            if (!res.ok) {
+              const errData = await res.json().catch(() => ({}));
+              throw new Error(errData?.message || `HTTP ${res.status} Unauthorized`);
+            }
+            const user = await res.json();
+            sendJson(200, { success: true, message: `Connected as ${user.username}`, latency });
+            return;
+          }
+
+          if (provider === 'telegram') {
+            const token = body.apiKey || settings.telegramBotToken;
+            if (!token) throw new Error('No Telegram bot token configured or provided.');
+            const startTime = Date.now();
+            const res = await fetch(`https://api.telegram.org/bot${token}/getMe`);
+            const latency = Date.now() - startTime;
+            if (!res.ok) {
+              throw new Error(`HTTP ${res.status} Unauthorized`);
+            }
+            const data = await res.json();
+            if (!data.ok) {
+              throw new Error(data.description || 'Invalid Telegram bot token');
+            }
+            sendJson(200, { success: true, message: `Connected as @${data.result.username}`, latency });
+            return;
+          }
+
+          sendJson(400, { success: false, error: 'Unknown provider specified.' });
+          return;
+        } catch (err: any) {
+          sendJson(200, { success: false, error: err.message });
+          return;
+        }
+      }
+
       if (pathname === '/api/bots/status' && req.method === 'GET') {
         const discordClient = orchestrator.getDiscordClient();
         sendJson(200, {
