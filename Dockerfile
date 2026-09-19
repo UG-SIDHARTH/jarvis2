@@ -13,8 +13,9 @@ COPY package*.json ./
 # Install production dependencies
 RUN npm install --omit=dev
 
-# Copy project source code and configuration
+# Copy project source code, web dashboard assets, and configuration
 COPY src/ ./src/
+COPY public/ ./public/
 COPY README.md ./
 
 # Create data directory for persistent memory storage
