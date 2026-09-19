@@ -1,5 +1,159 @@
 // JARVIS Holographic Radar & HUD Canvas Engine
 // Renders high-fidelity holographic radar, 3D wireframe core, radial compass, and telemetry stream
+// Dynamically reacts to JARVIS Moods: calm, happy, sad, sarcastic, tactical
+
+export const MOOD_THEMES = {
+  calm: {
+    name: 'calm',
+    label: 'CALM / BALANCED',
+    primary: '#00f0ff',
+    secondary: '#0070f3',
+    accent: '#00df8f',
+    glowColor: '#00f0ff',
+    bgGlow1: 'rgba(0, 240, 255, 0.08)',
+    bgGlow2: 'rgba(0, 112, 243, 0.05)',
+    radarRing: 'rgba(0, 240, 255, 0.22)',
+    radarOuter: 'rgba(0, 240, 255, 0.8)',
+    radarCross: 'rgba(0, 240, 255, 0.35)',
+    radarCaliper1: 'rgba(0, 240, 255, 0.9)',
+    radarCaliper2: 'rgba(0, 112, 243, 0.6)',
+    sweep1: 'rgba(0, 240, 255, 0.35)',
+    sweep2: 'rgba(0, 112, 243, 0.25)',
+    sphereDot: 'rgba(0, 240, 255, 0.85)',
+    sphereLine: 'rgba(0, 240, 255, 0.2)',
+    orbitalRing: 'rgba(0, 112, 243, 0.7)',
+    compassSpike: '#00f0ff',
+    compassSpikeMuted: 'rgba(0, 240, 255, 0.35)',
+    compassRing: 'rgba(0, 240, 255, 0.5)',
+    compassInner: 'rgba(0, 112, 243, 0.4)',
+    equalizer1: '#00f0ff',
+    equalizer2: '#0070f3',
+    badgeBg: 'rgba(0, 240, 255, 0.85)',
+    badgeText: '#000',
+    subText: 'rgba(0, 240, 255, 0.6)',
+    speedMult: 1.0,
+  },
+  happy: {
+    name: 'happy',
+    label: 'HAPPY / ENTHUSIASTIC',
+    primary: '#ffd700',
+    secondary: '#00f0ff',
+    accent: '#ffaa00',
+    glowColor: '#ffd700',
+    bgGlow1: 'rgba(255, 215, 0, 0.12)',
+    bgGlow2: 'rgba(0, 240, 255, 0.06)',
+    radarRing: 'rgba(255, 215, 0, 0.25)',
+    radarOuter: 'rgba(255, 215, 0, 0.85)',
+    radarCross: 'rgba(255, 215, 0, 0.4)',
+    radarCaliper1: 'rgba(255, 215, 0, 0.95)',
+    radarCaliper2: 'rgba(0, 240, 255, 0.7)',
+    sweep1: 'rgba(255, 215, 0, 0.4)',
+    sweep2: 'rgba(0, 240, 255, 0.3)',
+    sphereDot: 'rgba(255, 215, 0, 0.9)',
+    sphereLine: 'rgba(255, 215, 0, 0.22)',
+    orbitalRing: 'rgba(255, 170, 0, 0.8)',
+    compassSpike: '#ffd700',
+    compassSpikeMuted: 'rgba(255, 215, 0, 0.35)',
+    compassRing: 'rgba(255, 215, 0, 0.55)',
+    compassInner: 'rgba(0, 240, 255, 0.45)',
+    equalizer1: '#ffd700',
+    equalizer2: '#ff9900',
+    badgeBg: 'rgba(255, 215, 0, 0.9)',
+    badgeText: '#000',
+    subText: 'rgba(255, 215, 0, 0.75)',
+    speedMult: 1.35,
+  },
+  sad: {
+    name: 'sad',
+    label: 'SAD / MELANCHOLY',
+    primary: '#94a3b8',
+    secondary: '#3b82f6',
+    accent: '#64748b',
+    glowColor: '#94a3b8',
+    bgGlow1: 'rgba(148, 163, 184, 0.06)',
+    bgGlow2: 'rgba(59, 130, 246, 0.03)',
+    radarRing: 'rgba(148, 163, 184, 0.18)',
+    radarOuter: 'rgba(148, 163, 184, 0.65)',
+    radarCross: 'rgba(148, 163, 184, 0.25)',
+    radarCaliper1: 'rgba(148, 163, 184, 0.7)',
+    radarCaliper2: 'rgba(59, 130, 246, 0.45)',
+    sweep1: 'rgba(148, 163, 184, 0.25)',
+    sweep2: 'rgba(59, 130, 246, 0.18)',
+    sphereDot: 'rgba(148, 163, 184, 0.7)',
+    sphereLine: 'rgba(148, 163, 184, 0.12)',
+    orbitalRing: 'rgba(59, 130, 246, 0.5)',
+    compassSpike: '#94a3b8',
+    compassSpikeMuted: 'rgba(148, 163, 184, 0.25)',
+    compassRing: 'rgba(148, 163, 184, 0.4)',
+    compassInner: 'rgba(59, 130, 246, 0.3)',
+    equalizer1: '#94a3b8',
+    equalizer2: '#475569',
+    badgeBg: 'rgba(148, 163, 184, 0.75)',
+    badgeText: '#0f172a',
+    subText: 'rgba(148, 163, 184, 0.55)',
+    speedMult: 0.65,
+  },
+  sarcastic: {
+    name: 'sarcastic',
+    label: 'SARCASTIC / HIGH SNARK',
+    primary: '#c084fc',
+    secondary: '#ec4899',
+    accent: '#f43f5e',
+    glowColor: '#c084fc',
+    bgGlow1: 'rgba(192, 132, 252, 0.12)',
+    bgGlow2: 'rgba(236, 72, 153, 0.06)',
+    radarRing: 'rgba(192, 132, 252, 0.24)',
+    radarOuter: 'rgba(192, 132, 252, 0.85)',
+    radarCross: 'rgba(192, 132, 252, 0.35)',
+    radarCaliper1: 'rgba(192, 132, 252, 0.95)',
+    radarCaliper2: 'rgba(236, 72, 153, 0.7)',
+    sweep1: 'rgba(192, 132, 252, 0.35)',
+    sweep2: 'rgba(236, 72, 153, 0.25)',
+    sphereDot: 'rgba(192, 132, 252, 0.9)',
+    sphereLine: 'rgba(192, 132, 252, 0.2)',
+    orbitalRing: 'rgba(236, 72, 153, 0.75)',
+    compassSpike: '#c084fc',
+    compassSpikeMuted: 'rgba(192, 132, 252, 0.35)',
+    compassRing: 'rgba(192, 132, 252, 0.55)',
+    compassInner: 'rgba(236, 72, 153, 0.45)',
+    equalizer1: '#c084fc',
+    equalizer2: '#ec4899',
+    badgeBg: 'rgba(192, 132, 252, 0.9)',
+    badgeText: '#1e1035',
+    subText: 'rgba(192, 132, 252, 0.75)',
+    speedMult: 1.15,
+  },
+  tactical: {
+    name: 'tactical',
+    label: 'TACTICAL / COMBAT READY',
+    primary: '#ff1744',
+    secondary: '#ff6d00',
+    accent: '#ffea00',
+    glowColor: '#ff1744',
+    bgGlow1: 'rgba(255, 23, 68, 0.14)',
+    bgGlow2: 'rgba(255, 109, 0, 0.08)',
+    radarRing: 'rgba(255, 23, 68, 0.28)',
+    radarOuter: 'rgba(255, 23, 68, 0.9)',
+    radarCross: 'rgba(255, 23, 68, 0.45)',
+    radarCaliper1: 'rgba(255, 23, 68, 0.95)',
+    radarCaliper2: 'rgba(255, 109, 0, 0.8)',
+    sweep1: 'rgba(255, 23, 68, 0.45)',
+    sweep2: 'rgba(255, 109, 0, 0.35)',
+    sphereDot: 'rgba(255, 23, 68, 0.95)',
+    sphereLine: 'rgba(255, 23, 68, 0.25)',
+    orbitalRing: 'rgba(255, 109, 0, 0.85)',
+    compassSpike: '#ff1744',
+    compassSpikeMuted: 'rgba(255, 23, 68, 0.35)',
+    compassRing: 'rgba(255, 23, 68, 0.6)',
+    compassInner: 'rgba(255, 109, 0, 0.5)',
+    equalizer1: '#ff1744',
+    equalizer2: '#ff6d00',
+    badgeBg: 'rgba(255, 23, 68, 0.9)',
+    badgeText: '#fff',
+    subText: 'rgba(255, 23, 68, 0.8)',
+    speedMult: 1.6,
+  },
+};
 
 export class JarvisHud {
   constructor(canvas) {
@@ -9,6 +163,7 @@ export class JarvisHud {
     this.isSpeaking = false;
     this.isThinking = false;
     this.time = 0;
+    this.currentMood = 'calm';
     this.audioWaveData = new Array(32).fill(0);
 
     // 3D Sphere vertices for holographic wireframe
@@ -18,6 +173,20 @@ export class JarvisHud {
     this.resize();
     window.addEventListener('resize', () => this.resize());
     this.start();
+  }
+
+  setMood(mood) {
+    if (MOOD_THEMES[mood]) {
+      this.currentMood = mood;
+    }
+  }
+
+  getMood() {
+    return this.currentMood;
+  }
+
+  getTheme() {
+    return MOOD_THEMES[this.currentMood] || MOOD_THEMES.calm;
   }
 
   resize() {
@@ -74,10 +243,11 @@ export class JarvisHud {
     const ctx = this.ctx;
     const w = this.width;
     const h = this.height;
+    const theme = this.getTheme();
 
-    // Time scaling: faster when speaking or thinking
-    const speed = this.isSpeaking ? 0.045 : this.isThinking ? 0.06 : 0.02;
-    this.time += speed;
+    // Time scaling: faster when speaking or thinking, modulated by mood
+    const baseSpeed = this.isSpeaking ? 0.045 : this.isThinking ? 0.06 : 0.02;
+    this.time += baseSpeed * theme.speedMult;
 
     // Clear with dark space background
     ctx.clearRect(0, 0, w, h);
@@ -97,23 +267,23 @@ export class JarvisHud {
       : { x: w * 0.82, y: h * 0.72, r: Math.min(w * 0.11, 72) };
 
     // 1. Draw Main Left Holographic Radar
-    this.drawRadar(ctx, radarCenter.x, radarCenter.y, radarCenter.r);
+    this.drawRadar(ctx, radarCenter.x, radarCenter.y, radarCenter.r, theme);
 
     // 2. Draw Top-Right 3D Holographic Sphere
-    this.drawHoloSphere(ctx, sphereCenter.x, sphereCenter.y, sphereCenter.r);
+    this.drawHoloSphere(ctx, sphereCenter.x, sphereCenter.y, sphereCenter.r, theme);
 
     // 3. Draw Bottom-Right Radial Compass / Target Caliper
-    this.drawRadialCompass(ctx, compassCenter.x, compassCenter.y, compassCenter.r);
+    this.drawRadialCompass(ctx, compassCenter.x, compassCenter.y, compassCenter.r, theme);
 
     // 4. Draw Infrared & Audio Equalizer Spectrum (Bottom)
-    this.drawEqualizerSpectrum(ctx, w * 0.05, h * 0.90, w * 0.55, 30);
+    this.drawEqualizerSpectrum(ctx, w * 0.05, h * 0.90, w * 0.55, 30, theme);
 
     // 5. Draw HUD Cyberpunk Callouts & Header
-    this.drawHudOverlay(ctx, w, h);
+    this.drawHudOverlay(ctx, w, h, theme);
   }
 
   // --- 1. MAIN HOLOGRAPHIC RADAR ---
-  drawRadar(ctx, cx, cy, r) {
+  drawRadar(ctx, cx, cy, r, theme) {
     ctx.save();
     ctx.translate(cx, cy);
 
@@ -121,9 +291,9 @@ export class JarvisHud {
 
     // Glow background
     const bgGrad = ctx.createRadialGradient(0, 0, r * 0.1, 0, 0, r * 1.05);
-    bgGrad.addColorStop(0, 'rgba(0, 240, 255, 0.08)');
-    bgGrad.addColorStop(0.6, 'rgba(0, 112, 243, 0.05)');
-    bgGrad.addColorStop(1, 'rgba(0, 240, 255, 0)');
+    bgGrad.addColorStop(0, theme.bgGlow1);
+    bgGrad.addColorStop(0.6, theme.bgGlow2);
+    bgGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = bgGrad;
     ctx.beginPath();
     ctx.arc(0, 0, r * 1.05, 0, Math.PI * 2);
@@ -134,7 +304,7 @@ export class JarvisHud {
     ringFractions.forEach((frac, i) => {
       ctx.beginPath();
       ctx.arc(0, 0, r * frac + (i === 5 ? pulse : 0), 0, Math.PI * 2);
-      ctx.strokeStyle = i === 5 ? 'rgba(0, 240, 255, 0.8)' : 'rgba(0, 240, 255, 0.22)';
+      ctx.strokeStyle = i === 5 ? theme.radarOuter : theme.radarRing;
       ctx.lineWidth = i === 5 ? 2 : 1;
       if (i % 2 === 1) {
         ctx.setLineDash([4, 6]);
@@ -154,7 +324,7 @@ export class JarvisHud {
       ctx.beginPath();
       ctx.moveTo(cos * (r * 0.15), sin * (r * 0.15));
       ctx.lineTo(cos * r, sin * r);
-      ctx.strokeStyle = deg % 90 === 0 ? 'rgba(0, 240, 255, 0.35)' : 'rgba(0, 240, 255, 0.12)';
+      ctx.strokeStyle = deg % 90 === 0 ? theme.radarCross : theme.radarRing;
       ctx.lineWidth = deg % 90 === 0 ? 1.5 : 1;
       ctx.stroke();
 
@@ -162,7 +332,7 @@ export class JarvisHud {
       ctx.beginPath();
       ctx.moveTo(cos * (r * 0.96), sin * (r * 0.96));
       ctx.lineTo(cos * (r * 1.04), sin * (r * 1.04));
-      ctx.strokeStyle = 'rgba(0, 240, 255, 0.7)';
+      ctx.strokeStyle = theme.radarOuter;
       ctx.lineWidth = 1.5;
       ctx.stroke();
     }
@@ -175,7 +345,7 @@ export class JarvisHud {
     ctx.arc(0, 0, r * 1.08, Math.PI * 0.6, Math.PI * 0.9);
     ctx.arc(0, 0, r * 1.08, Math.PI * 1.1, Math.PI * 1.45);
     ctx.arc(0, 0, r * 1.08, Math.PI * 1.6, Math.PI * 1.95);
-    ctx.strokeStyle = 'rgba(0, 240, 255, 0.9)';
+    ctx.strokeStyle = theme.radarCaliper1;
     ctx.lineWidth = 3;
     ctx.stroke();
     ctx.restore();
@@ -186,43 +356,50 @@ export class JarvisHud {
     ctx.arc(0, 0, r * 1.15, Math.PI * 0.2, Math.PI * 0.5);
     ctx.arc(0, 0, r * 1.15, Math.PI * 0.8, Math.PI * 1.2);
     ctx.arc(0, 0, r * 1.15, Math.PI * 1.5, Math.PI * 1.85);
-    ctx.strokeStyle = 'rgba(0, 112, 243, 0.6)';
+    ctx.strokeStyle = theme.radarCaliper2;
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.restore();
 
     // Sweeping Radar Sectors
     const sweepAngle = this.time * 1.5;
-    this.drawSweepSector(ctx, r * 0.98, sweepAngle, 0.7, 'rgba(0, 240, 255, 0.35)');
-    this.drawSweepSector(ctx, r * 0.85, sweepAngle + Math.PI * 0.9, 0.35, 'rgba(0, 112, 243, 0.25)');
+    this.drawSweepSector(ctx, r * 0.98, sweepAngle, 0.7, theme.sweep1, theme.primary);
+    this.drawSweepSector(ctx, r * 0.85, sweepAngle + Math.PI * 0.9, 0.35, theme.sweep2, theme.secondary);
 
     // Target Blips with glow
-    this.drawTargetBlip(ctx, r * 0.55, this.time * 0.5, 'TGT-01');
-    this.drawTargetBlip(ctx, r * 0.78, -this.time * 0.35 + 2.2, 'JARVIS');
+    this.drawTargetBlip(ctx, r * 0.55, this.time * 0.5, 'TGT-01', theme);
+    this.drawTargetBlip(ctx, r * 0.78, -this.time * 0.35 + 2.2, `JARVIS:${this.currentMood.toUpperCase()}`, theme);
     if (this.isSpeaking) {
-      this.drawTargetBlip(ctx, r * 0.38, this.time * 1.2, 'AUDIO-TX');
+      this.drawTargetBlip(ctx, r * 0.38, this.time * 1.2, 'AUDIO-TX', theme);
     }
 
     // Center Core / Crosshair
     ctx.beginPath();
     ctx.arc(0, 0, 8 + (this.isSpeaking ? 3 : 0), 0, Math.PI * 2);
-    ctx.fillStyle = '#00f0ff';
-    ctx.shadowColor = '#00f0ff';
+    ctx.fillStyle = theme.primary;
+    ctx.shadowColor = theme.glowColor;
     ctx.shadowBlur = 12;
     ctx.fill();
     ctx.shadowBlur = 0;
 
     // Tactical Tags on right edge of radar
     const tagX = r * 1.05;
-    this.drawTacticalTag(ctx, tagX, -r * 0.4, 'GBU - 38', 'ALM MAX', '#00f0ff');
-    this.drawTacticalTag(ctx, tagX, -r * 0.15, 'SYS - 02', 'ONLINE', '#00df8f');
-    this.drawTacticalTag(ctx, tagX, r * 0.1, 'SEC - 03', 'ACTIVE', '#0070f3');
-    this.drawTacticalTag(ctx, tagX, r * 0.35, 'TRK - 04', this.isSpeaking ? 'TRANSMIT' : 'STANDBY', this.isSpeaking ? '#ff3366' : '#f5a623');
+    this.drawTacticalTag(ctx, tagX, -r * 0.4, 'GBU - 38', 'ALM MAX', theme.primary);
+    this.drawTacticalTag(ctx, tagX, -r * 0.15, 'SYS - 02', theme.label.split('/')[0].trim(), theme.accent);
+    this.drawTacticalTag(ctx, tagX, r * 0.1, 'SEC - 03', 'ACTIVE', theme.secondary);
+    this.drawTacticalTag(
+      ctx,
+      tagX,
+      r * 0.35,
+      'TRK - 04',
+      this.isSpeaking ? 'TRANSMIT' : 'STANDBY',
+      this.isSpeaking ? '#ff3366' : theme.accent
+    );
 
     ctx.restore();
   }
 
-  drawSweepSector(ctx, radius, startAngle, fanSize, color) {
+  drawSweepSector(ctx, radius, startAngle, fanSize, color, leadColor) {
     ctx.save();
     const steps = 24;
     for (let i = 0; i < steps; i++) {
@@ -241,13 +418,13 @@ export class JarvisHud {
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.lineTo(Math.cos(startAngle) * radius, Math.sin(startAngle) * radius);
-    ctx.strokeStyle = '#00f0ff';
+    ctx.strokeStyle = leadColor;
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.restore();
   }
 
-  drawTargetBlip(ctx, distance, angle, label) {
+  drawTargetBlip(ctx, distance, angle, label, theme) {
     const x = Math.cos(angle) * distance;
     const y = Math.sin(angle) * distance;
 
@@ -255,18 +432,18 @@ export class JarvisHud {
     ctx.beginPath();
     ctx.arc(x, y, 3.5, 0, Math.PI * 2);
     ctx.fillStyle = '#fff';
-    ctx.shadowColor = '#00f0ff';
+    ctx.shadowColor = theme.glowColor;
     ctx.shadowBlur = 8;
     ctx.fill();
 
     ctx.beginPath();
     ctx.arc(x, y, 7, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(0, 240, 255, 0.7)';
+    ctx.strokeStyle = theme.radarOuter;
     ctx.lineWidth = 1;
     ctx.stroke();
 
     ctx.font = '9px "JetBrains Mono", monospace';
-    ctx.fillStyle = 'rgba(0, 240, 255, 0.85)';
+    ctx.fillStyle = theme.primary;
     ctx.fillText(label, x + 10, y + 3);
     ctx.restore();
   }
@@ -295,12 +472,12 @@ export class JarvisHud {
   }
 
   // --- 2. 3D HOLOGRAPHIC WIREFRAME SPHERE ---
-  drawHoloSphere(ctx, cx, cy, radius) {
+  drawHoloSphere(ctx, cx, cy, radius, theme) {
     ctx.save();
     ctx.translate(cx, cy);
 
     // Rotate 3D orientation
-    const rotSpeed = this.isSpeaking ? 0.035 : 0.015;
+    const rotSpeed = (this.isSpeaking ? 0.035 : 0.015) * theme.speedMult;
     this.sphereRotation.x += rotSpeed * 0.7;
     this.sphereRotation.y += rotSpeed;
     this.sphereRotation.z += rotSpeed * 0.4;
@@ -338,7 +515,7 @@ export class JarvisHud {
     // Outer glowing boundary circle
     ctx.beginPath();
     ctx.arc(0, 0, currentRadius * 1.1, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(0, 240, 255, 0.25)';
+    ctx.strokeStyle = theme.radarRing;
     ctx.lineWidth = 1;
     ctx.setLineDash([3, 5]);
     ctx.stroke();
@@ -360,7 +537,7 @@ export class JarvisHud {
           ctx.beginPath();
           ctx.moveTo(projected[i].x, projected[i].y);
           ctx.lineTo(projected[j].x, projected[j].y);
-          ctx.strokeStyle = `rgba(0, 240, 255, ${alpha})`;
+          ctx.strokeStyle = theme.sphereLine.replace(/[\d.]+\)$/, `${alpha})`);
           ctx.stroke();
         }
       }
@@ -368,11 +545,10 @@ export class JarvisHud {
 
     // Draw glowing node vertices
     projected.forEach((p) => {
-      const alpha = Math.max(0.2, (p.z / (currentRadius * 2)) + 0.6);
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.z > 0 ? 2.5 : 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = p.z > 0 ? '#fff' : 'rgba(0, 240, 255, 0.6)';
-      ctx.shadowColor = '#00f0ff';
+      ctx.fillStyle = p.z > 0 ? '#fff' : theme.sphereDot;
+      ctx.shadowColor = theme.glowColor;
       ctx.shadowBlur = p.z > 0 ? 8 : 2;
       ctx.fill();
       ctx.shadowBlur = 0;
@@ -383,21 +559,21 @@ export class JarvisHud {
     ctx.rotate(this.time * 0.6);
     ctx.beginPath();
     ctx.ellipse(0, 0, currentRadius * 1.3, currentRadius * 0.35, Math.PI / 4, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(0, 112, 243, 0.7)';
+    ctx.strokeStyle = theme.orbitalRing;
     ctx.lineWidth = 1.5;
     ctx.stroke();
     ctx.restore();
 
     // Section label
     ctx.font = '9px "JetBrains Mono", monospace';
-    ctx.fillStyle = '#00f0ff';
+    ctx.fillStyle = theme.primary;
     ctx.fillText('NEURAL MESH // 3D', -currentRadius, currentRadius * 1.25);
 
     ctx.restore();
   }
 
   // --- 3. BOTTOM-RIGHT RADIAL COMPASS & SPIKE RING ---
-  drawRadialCompass(ctx, cx, cy, radius) {
+  drawRadialCompass(ctx, cx, cy, radius, theme) {
     ctx.save();
     ctx.translate(cx, cy);
 
@@ -413,7 +589,7 @@ export class JarvisHud {
       ctx.beginPath();
       ctx.moveTo(Math.cos(angle) * innerR, Math.sin(angle) * innerR);
       ctx.lineTo(Math.cos(angle) * outerR, Math.sin(angle) * outerR);
-      ctx.strokeStyle = i % 4 === 0 ? '#00f0ff' : 'rgba(0, 240, 255, 0.35)';
+      ctx.strokeStyle = i % 4 === 0 ? theme.compassSpike : theme.compassSpikeMuted;
       ctx.lineWidth = i % 4 === 0 ? 2 : 1;
       ctx.stroke();
     }
@@ -422,13 +598,13 @@ export class JarvisHud {
     // Concentric ring with dotted border
     ctx.beginPath();
     ctx.arc(0, 0, radius * 0.78, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(0, 240, 255, 0.5)';
+    ctx.strokeStyle = theme.compassRing;
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
     ctx.beginPath();
     ctx.arc(0, 0, radius * 0.58, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(0, 112, 243, 0.4)';
+    ctx.strokeStyle = theme.compassInner;
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 4]);
     ctx.stroke();
@@ -441,7 +617,7 @@ export class JarvisHud {
       const a = (i / 3) * Math.PI * 2;
       ctx.beginPath();
       ctx.arc(0, 0, radius * 0.45, a, a + Math.PI * 0.35);
-      ctx.strokeStyle = '#00f0ff';
+      ctx.strokeStyle = theme.primary;
       ctx.lineWidth = 2.5;
       ctx.stroke();
     }
@@ -450,8 +626,8 @@ export class JarvisHud {
     // Glowing core
     ctx.beginPath();
     ctx.arc(0, 0, 6, 0, Math.PI * 2);
-    ctx.fillStyle = this.isSpeaking ? '#ff3366' : '#00f0ff';
-    ctx.shadowColor = this.isSpeaking ? '#ff3366' : '#00f0ff';
+    ctx.fillStyle = this.isSpeaking ? '#ff3366' : theme.primary;
+    ctx.shadowColor = this.isSpeaking ? '#ff3366' : theme.glowColor;
     ctx.shadowBlur = 10;
     ctx.fill();
     ctx.shadowBlur = 0;
@@ -460,8 +636,8 @@ export class JarvisHud {
     const badgeX = radius * 1.08;
     ['01', '02', '03'].forEach((num, idx) => {
       const bY = -radius * 0.4 + idx * 24;
-      ctx.fillStyle = 'rgba(0, 240, 255, 0.15)';
-      ctx.strokeStyle = '#00f0ff';
+      ctx.fillStyle = 'rgba(7, 12, 24, 0.85)';
+      ctx.strokeStyle = theme.primary;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.roundRect(badgeX, bY, 22, 16, 3);
@@ -469,7 +645,7 @@ export class JarvisHud {
       ctx.stroke();
 
       ctx.font = '9px "JetBrains Mono", monospace';
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = theme.primary;
       ctx.fillText(num, badgeX + 5, bY + 11);
     });
 
@@ -477,13 +653,13 @@ export class JarvisHud {
   }
 
   // --- 4. EQUALIZER SPECTRUM (BOTTOM) ---
-  drawEqualizerSpectrum(ctx, x, y, width, height) {
+  drawEqualizerSpectrum(ctx, x, y, width, height, theme) {
     ctx.save();
     const barCount = 38;
     const barWidth = (width / barCount) - 3;
 
     ctx.font = '8px "JetBrains Mono", monospace';
-    ctx.fillStyle = 'rgba(0, 240, 255, 0.7)';
+    ctx.fillStyle = theme.subText;
     ctx.fillText('INFRARED / VOCAL SPECTRUM', x, y - 6);
 
     for (let i = 0; i < barCount; i++) {
@@ -504,8 +680,8 @@ export class JarvisHud {
       const by = y + (height - barH);
 
       const grad = ctx.createLinearGradient(0, by, 0, by + barH);
-      grad.addColorStop(0, '#00f0ff');
-      grad.addColorStop(1, '#0070f3');
+      grad.addColorStop(0, theme.equalizer1);
+      grad.addColorStop(1, theme.equalizer2);
 
       ctx.fillStyle = grad;
       ctx.fillRect(bx, by, barWidth, barH);
@@ -514,7 +690,7 @@ export class JarvisHud {
   }
 
   // --- 5. HUD CYBERPUNK LABELS & TELEMETRY ---
-  drawHudOverlay(ctx, w, h) {
+  drawHudOverlay(ctx, w, h, theme) {
     ctx.save();
 
     // Top Right "RADAR" Bar (from reference image)
@@ -522,48 +698,51 @@ export class JarvisHud {
     const barY = 16;
     const barW = Math.min(w * 0.32, 240);
 
-    ctx.fillStyle = 'rgba(0, 240, 255, 0.85)';
+    ctx.fillStyle = theme.badgeBg;
     ctx.fillRect(barX, barY, barW, 26);
 
-    ctx.font = 'bold 13px "JetBrains Mono", monospace';
-    ctx.fillStyle = '#000';
-    ctx.fillText('RADAR & TACTICAL HUD', barX + 14, barY + 18);
+    ctx.font = 'bold 12px "JetBrains Mono", monospace';
+    ctx.fillStyle = theme.badgeText;
+    ctx.fillText(`RADAR // ${theme.label}`, barX + 10, barY + 18);
 
-    ctx.fillStyle = '#00f0ff';
+    ctx.fillStyle = theme.primary;
     ctx.fillRect(barX, barY + 28, barW, 2);
 
     ctx.font = '8px "JetBrains Mono", monospace';
-    ctx.fillStyle = 'rgba(0, 240, 255, 0.6)';
-    ctx.fillText('RADAR AND INFRARED DISPLAY // SYSTEM ACTIVE', barX, barY + 40);
+    ctx.fillStyle = theme.subText;
+    ctx.fillText(`RADAR & INFRARED DISPLAY // MOOD: ${theme.name.toUpperCase()}`, barX, barY + 40);
 
     // Environment Telemetry Box (center right)
     if (w > 720) {
       const envX = w * 0.57;
       const envY = h * 0.34;
-      ctx.fillStyle = 'rgba(0, 240, 255, 0.05)';
-      ctx.strokeStyle = 'rgba(0, 240, 255, 0.2)';
+      ctx.fillStyle = theme.bgGlow1;
+      ctx.strokeStyle = theme.radarRing;
       ctx.beginPath();
-      ctx.roundRect(envX, envY, 130, 95, 4);
+      ctx.roundRect(envX, envY, 136, 100, 4);
       ctx.fill();
       ctx.stroke();
 
       ctx.font = '9px "JetBrains Mono", monospace';
-      ctx.fillStyle = '#00f0ff';
+      ctx.fillStyle = theme.primary;
       ctx.fillText('● ENVIRONMENT SCN', envX + 8, envY + 16);
 
       ctx.font = '7.5px "JetBrains Mono", monospace';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
       ctx.fillText(`FREQ: ${(1420 + Math.sin(this.time) * 12).toFixed(1)} MHz`, envX + 8, envY + 32);
       ctx.fillText(`BEAM: AZ ${(180 + Math.sin(this.time * 0.5) * 45).toFixed(0)}° EL 22°`, envX + 8, envY + 44);
       ctx.fillText(`STATE: ${this.isSpeaking ? 'TRANSMITTING' : this.isThinking ? 'PROCESSING' : 'LISTENING'}`, envX + 8, envY + 56);
-      ctx.fillText(`ENCRYPT: QUANTUM-AES`, envX + 8, envY + 68);
+      ctx.fillText(`MOOD: ${theme.name.toUpperCase()}`, envX + 8, envY + 68);
       ctx.fillText(`ORCHESTRATOR: ONLINE`, envX + 8, envY + 80);
+      ctx.fillText(`QUANTUM CORE: STABLE`, envX + 8, envY + 92);
     }
 
     // Prominent HUD Identifier (from reference image)
     ctx.font = 'bold 38px "JetBrains Mono", monospace';
-    ctx.fillStyle = 'rgba(0, 240, 255, 0.7)';
+    ctx.fillStyle = theme.primary;
+    ctx.globalAlpha = 0.5;
     ctx.fillText('7', w * 0.52, h * 0.94);
+    ctx.globalAlpha = 1.0;
 
     ctx.restore();
   }

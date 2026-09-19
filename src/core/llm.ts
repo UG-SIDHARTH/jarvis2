@@ -1,12 +1,13 @@
 import { GoogleGenAI } from '@google/genai';
 import { settings } from '../config/settings.ts';
-import { JARVIS_SYSTEM_INSTRUCTION } from '../config/prompts.ts';
+import { type JarvisMood, getJarvisSystemInstruction } from '../config/prompts.ts';
 import { getGeminiToolDeclarations, executeToolCall, allTools } from '../tools/index.ts';
 import type { ToolContext } from '../tools/types.ts';
 
 export interface GenerateResult {
   text: string;
   provider: 'groq' | 'gemini' | 'nvidia' | 'offline';
+  mood: JarvisMood;
   toolCallsExecuted: Array<{ name: string; args: any; result: any }>;
 }
 
@@ -35,7 +36,8 @@ export class JarvisLLM {
   async processTurn(
     userPrompt: string,
     history: Array<{ role: 'user' | 'assistant'; content: string }>,
-    context: ToolContext
+    context: ToolContext,
+    mood: JarvisMood = 'calm'
   ): Promise<GenerateResult> {
     const provider = this.getEffectiveProvider();
 
@@ -43,6 +45,7 @@ export class JarvisLLM {
       return {
         text: "Neural processing offline. Please configure your Groq, Gemini, or NVIDIA API key in settings.",
         provider: 'offline',
+        mood,
         toolCallsExecuted: [],
       };
     }
@@ -56,6 +59,7 @@ export class JarvisLLM {
         userPrompt,
         history,
         context,
+        mood,
       });
     }
 
@@ -68,18 +72,20 @@ export class JarvisLLM {
         userPrompt,
         history,
         context,
+        mood,
       });
     }
 
     // Default: Gemini
-    return await this.processWithGemini(userPrompt, history, context);
+    return await this.processWithGemini(userPrompt, history, context, mood);
   }
 
   // --- GEMINI HANDLER ---
   private async processWithGemini(
     userPrompt: string,
     history: Array<{ role: 'user' | 'assistant'; content: string }>,
-    context: ToolContext
+    context: ToolContext,
+    mood: JarvisMood = 'calm'
   ): Promise<GenerateResult> {
     const ai = new GoogleGenAI({ apiKey: settings.geminiApiKey });
     const contents: any[] = [];
@@ -110,7 +116,7 @@ export class JarvisLLM {
         contents,
         config: {
           systemInstruction: {
-            parts: [{ text: JARVIS_SYSTEM_INSTRUCTION }],
+            parts: [{ text: getJarvisSystemInstruction(mood) }],
           },
           tools: tools as any,
           temperature: 0.3,
@@ -157,6 +163,7 @@ export class JarvisLLM {
     return {
       text: finalText || "Directive completed.",
       provider: 'gemini',
+      mood,
       toolCallsExecuted,
     };
   }
@@ -170,9 +177,10 @@ export class JarvisLLM {
     userPrompt: string;
     history: Array<{ role: 'user' | 'assistant'; content: string }>;
     context: ToolContext;
+    mood: JarvisMood;
   }): Promise<GenerateResult> {
     const messages: any[] = [
-      { role: 'system', content: JARVIS_SYSTEM_INSTRUCTION },
+      { role: 'system', content: getJarvisSystemInstruction(opts.mood) },
     ];
 
     for (const h of opts.history) {
@@ -260,6 +268,7 @@ export class JarvisLLM {
     return {
       text: finalText.trim() || "Directive completed.",
       provider: opts.providerName,
+      mood: opts.mood,
       toolCallsExecuted,
     };
   }

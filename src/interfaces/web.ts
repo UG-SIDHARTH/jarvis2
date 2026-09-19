@@ -100,6 +100,20 @@ export async function runWebServer(orchestrator: JarvisOrchestrator, port = 3001
         return;
       }
 
+      if (pathname === '/api/mood' && req.method === 'GET') {
+        sendJson(200, { success: true, mood: orchestrator.getMood() });
+        return;
+      }
+
+      if (pathname === '/api/mood' && req.method === 'POST') {
+        const body = await parseBody();
+        if (body.mood) {
+          orchestrator.setMood(body.mood);
+        }
+        sendJson(200, { success: true, mood: orchestrator.getMood() });
+        return;
+      }
+
       if (pathname === '/api/chat' && req.method === 'POST') {
         const body = await parseBody();
         const prompt = body.message || '';
@@ -111,8 +125,9 @@ export async function runWebServer(orchestrator: JarvisOrchestrator, port = 3001
           platform: 'web',
           userId: 'web_user',
           userMessage: prompt,
+          mood: body.mood,
         });
-        sendJson(200, { success: true, reply: result.reply, toolsUsed: result.toolsUsed });
+        sendJson(200, { success: true, reply: result.reply, toolsUsed: result.toolsUsed, mood: result.mood });
         return;
       }
 

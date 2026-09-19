@@ -73,13 +73,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const telegramHint = document.getElementById('telegram-hint');
   const saveFeedback = document.getElementById('save-feedback');
   const activeProviderLabel = document.getElementById('active-provider-label');
+  const moodSelect = document.getElementById('mood-select');
 
   let currentFilter = 'all';
   let tasks = [];
   let voiceEnabled = true;
+  let currentMood = 'calm';
+
+  const MOOD_VOICE_PARAMS = {
+    calm: { pitch: 0.95, rate: 1.02 },
+    happy: { pitch: 1.15, rate: 1.14 },
+    sad: { pitch: 0.72, rate: 0.85 },
+    sarcastic: { pitch: 0.92, rate: 1.08 },
+    tactical: { pitch: 0.80, rate: 1.25 },
+  };
 
   // --- Voice / Speech Synthesis ---
-  function speak(text) {
+  function speak(text, mood) {
     if (!voiceEnabled || !('speechSynthesis' in window)) return;
 
     window.speechSynthesis.cancel(); // Cancel any ongoing speech
@@ -95,8 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!cleanText) return;
 
     const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.rate = 1.05;
-    utterance.pitch = 0.92;
+    const params = MOOD_VOICE_PARAMS[mood || currentMood] || MOOD_VOICE_PARAMS.calm;
+    utterance.rate = params.rate;
+    utterance.pitch = params.pitch;
 
     // Pick a natural sounding English voice if available
     const voices = window.speechSynthesis.getVoices();
@@ -365,14 +376,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --- Chat Console Operations ---
-  function appendMessage(role, text, meta) {
+  function appendMessage(role, text, meta, mood) {
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${role}-message`;
 
-    if (meta) {
+    if (meta || mood) {
       const metaDiv = document.createElement('div');
       metaDiv.className = 'message-meta';
-      metaDiv.textContent = meta;
+      metaDiv.textContent = meta || '';
+      if (mood) {
+        const tag = document.createElement('span');
+        tag.className = `mood-tag ${mood}`;
+        tag.textContent = mood;
+        metaDiv.appendChild(tag);
+      }
       msgDiv.appendChild(metaDiv);
     }
 
@@ -394,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chatInput.value = '';
     appendMessage('user', text, 'YOU // CLI-WEB');
 
-    const thinkingMsg = appendMessage('assistant', 'Calibrating neural response...', 'JARVIS // PROCESSING');
+    const thinkingMsg = appendMessage('assistant', 'Calibrating neural response...', 'JARVIS // PROCESSING', currentMood);
     hud?.setThinking(true);
     if (hudVocalStatus) hudVocalStatus.textContent = 'NEURAL PROCESSING...';
 
@@ -402,32 +419,39 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({ message: text, mood: currentMood }),
       });
       const data = await res.json();
 
       thinkingMsg.remove();
       hud?.setThinking(false);
       if (data.success) {
+        const replyMood = data.mood || currentMood;
+        if (data.mood && data.mood !== currentMood) {
+          currentMood = data.mood;
+          if (moodSelect) moodSelect.value = data.mood;
+          hud?.setMood(data.mood);
+        }
+
         const meta = data.toolsUsed?.length
           ? `JARVIS // TOOLS: [${data.toolsUsed.join(', ')}]`
           : 'JARVIS // RESPONSE';
-        appendMessage('assistant', data.reply, meta);
+        appendMessage('assistant', data.reply, meta, replyMood);
 
-        // Vocal synthesis!
-        speak(data.reply);
+        // Vocal synthesis with mood pitch/rate!
+        speak(data.reply, replyMood);
 
         // Refresh tasks in case tools mutated them
         await loadTasks();
       } else {
         appendMessage('assistant', `Processing anomaly: ${data.error}`, 'JARVIS // ALERT');
-        speak(`Processing anomaly: ${data.error}`);
+        speak(`Processing anomaly: ${data.error}`, currentMood);
       }
     } catch (err) {
       thinkingMsg.remove();
       hud?.setThinking(false);
       appendMessage('assistant', 'Network failure contacting core engine.', 'JARVIS // ERROR');
-      speak('Network failure contacting core engine.');
+      speak('Network failure contacting core engine.', currentMood);
     }
   });
 
@@ -526,6 +550,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  if (moodSelect) {
+    moodSelect.addEventListener('change', async () => {
+      currentMood = moodSelect.value;
+      hud?.setMood(currentMood);
+      try {
+        await fetch('/api/mood', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mood: currentMood }),
+        });
+      } catch (err) {
+        console.error('Failed to update mood on server:', err);
+      }
+    });
+  }
+
+  async function loadMood() {
+    try {
+      const res = await fetch('/api/mood');
+      const data = await res.json();
+      if (data.success && data.mood) {
+        currentMood = data.mood;
+        if (moodSelect) moodSelect.value = data.mood;
+        hud?.setMood(data.mood);
+      }
+    } catch (err) {
+      console.error('Failed to load initial mood:', err);
+    }
+  }
+
   function escapeHtml(str) {
     return str.replace(/[&<>'"]/g, (tag) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
   }
@@ -534,4 +588,5 @@ document.addEventListener('DOMContentLoaded', () => {
   loadTasks();
   loadConfig();
   loadBotStatus();
+  loadMood();
 });
