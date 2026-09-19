@@ -11,7 +11,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - DATA_PATH=/app/data/jarvis_store.json
+      - DATA_PATH=/app/data/jarvis.db
       - PORT=3001
 
 volumes:

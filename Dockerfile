@@ -25,7 +25,7 @@ USER node
 
 # Environment defaults
 ENV NODE_ENV=production
-ENV DATA_PATH=/app/data/jarvis_store.json
+ENV DATA_PATH=/app/data/jarvis.db
 ENV PORT=3001
 
 EXPOSE 3001

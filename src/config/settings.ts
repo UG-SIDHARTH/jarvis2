@@ -27,7 +27,7 @@ export const settings: Settings = {
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN || '',
   discordBotToken: process.env.DISCORD_BOT_TOKEN || '',
   discordClientId: process.env.DISCORD_CLIENT_ID || '',
-  dataPath: process.env.DATA_PATH || path.resolve('./data/jarvis_store.json'),
+  dataPath: process.env.DATA_PATH || path.resolve('./data/jarvis.db'),
   defaultUserId: process.env.DEFAULT_USER_ID || 'primary_user',
   port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3001,
   logLevel: (process.env.LOG_LEVEL as Settings['logLevel']) || 'info',
