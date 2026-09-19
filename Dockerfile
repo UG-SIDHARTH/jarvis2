@@ -11,7 +11,7 @@ RUN apk add --no-cache python3 make g++
 COPY package*.json ./
 
 # Install production dependencies
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 # Copy project source code and configuration
 COPY src/ ./src/
