@@ -26,6 +26,9 @@ USER node
 # Environment defaults
 ENV NODE_ENV=production
 ENV DATA_PATH=/app/data/jarvis_store.json
+ENV PORT=3001
+
+EXPOSE 3001
 
 # Expose volume for persistent memory
 VOLUME ["/app/data"]

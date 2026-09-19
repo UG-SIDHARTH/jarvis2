@@ -16,7 +16,7 @@ async function main() {
   await orchestrator.init();
 
   if (isWeb) {
-    await runWebServer(orchestrator, 3000);
+    await runWebServer(orchestrator, settings.port);
   }
 
   if (isTelegram) {

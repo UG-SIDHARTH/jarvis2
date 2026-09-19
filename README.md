@@ -114,11 +114,17 @@ npm run start:discord
 ```
 Mention the bot in your server or send direct messages (DMs).
 
+### Web Dashboard Mode (Holographic HUD & Voice)
+```bash
+npm run start:web
+```
+Open **`http://localhost:3001`** in your browser to access the live Holographic Radar HUD, voice synthesis, task matrix, and Discord controller.
+
 ### Run All Gateways Concurrently
 ```bash
 npm run start:all
 ```
-Brings up CLI, Telegram, and Discord simultaneously sharing unified memory.
+Brings up Web Dashboard (port 3001), CLI, Telegram, and Discord simultaneously sharing unified memory.
 
 ---
 

@@ -16,7 +16,7 @@ const MIME_TYPES: Record<string, string> = {
   '.ico': 'image/x-icon',
 };
 
-export async function runWebServer(orchestrator: JarvisOrchestrator, port = 3000): Promise<http.Server> {
+export async function runWebServer(orchestrator: JarvisOrchestrator, port = 3001): Promise<http.Server> {
   const publicDir = path.resolve('./public');
 
   const server = http.createServer(async (req, res) => {
